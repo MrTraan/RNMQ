@@ -1,7 +1,7 @@
 const chai = require('chai');
 const expect = chai.expect;
 
-const Queue = require('../build/index.js').default;
+const { Queue } = require('../build/index.js');
 
 describe('Classe queue', () => {
   let q;
@@ -13,6 +13,7 @@ describe('Classe queue', () => {
   });
 
   beforeEach((done) => {
+    q.unsubscribe();
     q.flush()
     .then(() => done())
     .catch(done);
@@ -74,8 +75,8 @@ describe('Classe queue', () => {
   describe('#pop', () => {
     it('Should get an item', (done) => {
       q.put('elem1')
-      q.put('elem2')
-      q.put('elem3')
+        .then(() => q.put('elem2'))
+        .then(() => q.put('elem3'))
         .then(() => q.pop())
         .then((item) => {
           expect(item).to.exists;
@@ -97,6 +98,26 @@ describe('Classe queue', () => {
           done();
         })
         .catch(done);
+    });
+  });
+
+  describe('#subscribe', () => {
+    it('Should subscribe to new message events', (done) => {
+      const _q = new Queue('test');
+      const msgs = [];
+
+      _q.on('message', msg => msgs.push(msg));
+      _q.on('ready', () => {
+        _q.subscribe();
+        q.publish('elem1');
+        q.publish('elem2');
+        q.publish('elem3');
+
+        setTimeout(() => {
+          expect(msgs.length).to.eql(3);
+          done();
+        }, 200);
+      });
     });
   });
 });

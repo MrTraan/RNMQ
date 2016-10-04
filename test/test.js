@@ -122,6 +122,7 @@ describe('Classe queue', () => {
       });
 
       _q.on('error', done);
+      _q.on('reconnecting', done);
     });
   });
 });

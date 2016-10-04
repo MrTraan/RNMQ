@@ -3,11 +3,13 @@ const expect = chai.expect;
 
 const { Queue } = require('../build/index.js');
 
+const host = process.env.REDIS_HOST || '127.0.0.1';
+
 describe('Classe queue', () => {
   let q;
 
   before((done) => {
-    q = new Queue('test');
+    q = new Queue('test', { host });
 
     q.on('ready', () => done());
   });
@@ -20,13 +22,13 @@ describe('Classe queue', () => {
   });
 
   it('Should be instanciable', () => {
-    const _q = new Queue('_test');
+    const _q = new Queue('_test', { host });
     expect(_q).to.be.an.instanceof(Queue);
   });
 
   it('Should not be instanciable without a queue name', (done) => {
     try {
-      const _q = new Queue();
+      const _q = new Queue({ host });
     } catch (err) {
       expect(err).to.exists;
       done();

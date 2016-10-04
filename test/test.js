@@ -103,7 +103,8 @@ describe('Classe queue', () => {
   });
 
   describe('#subscribe', () => {
-    it('Should subscribe to new message events', (done) => {
+    it('Should subscribe to new message events', function(done) {
+      this.timeout(10000);
       const _q = new Queue('test');
       const msgs = [];
 

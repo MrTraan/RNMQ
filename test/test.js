@@ -4,7 +4,7 @@ const { Queue } = require('../build/index.js');
 const expect = chai.expect;
 const host = process.env.REDIS_HOST || '127.0.0.1';
 
-describe('Classe queue', () => {
+describe('Class queue', () => {
   let q;
 
   before((done) => {
@@ -14,7 +14,8 @@ describe('Classe queue', () => {
   });
 
   beforeEach((done) => {
-    q.unsubscribe();
+    q.unsubscribe()
+    .catch((err) => {});
     q.flush()
     .then(() => done())
     .catch(done);
@@ -102,22 +103,56 @@ describe('Classe queue', () => {
     });
   });
 
-  describe('#subscribe', () => {
-    it('Should subscribe to new message events', function(done) {
-      const _q = new Queue('test', { host });
-      const msgs = [];
+  describe('PubSub', () => {
+    describe('#subscribe', () => {
+      it('Should subscribe to new message events', (done) => {
+        const _q = new Queue('test', { host });
+        const msgs = [];
 
-      _q.on('message', msg => msgs.push(msg));
-      _q.on('ready', () => {
-        _q.subscribe();
-        q.publish('elem1');
-        q.publish('elem2');
-        q.publish('elem3');
+        _q.on('message', msg => msgs.push(msg));
+        _q.on('ready', () => {
+          _q.subscribe()
+          .then((count) => {
+            expect(count).to.eql(1);
+            q.publish('elem1');
+            q.publish('elem2');
+            q.publish('elem3');
 
-        setTimeout(() => {
-          expect(msgs.length).to.eql(3);
-          done();
-        }, 200);
+            setTimeout(() => {
+              expect(msgs.length).to.eql(3);
+              done();
+            }, 200);
+          })
+          .catch(done);
+        });
+      });
+    });
+
+    describe('#unsubscribe', () => {
+      it('Should unsubscribe to new message events', (done) => {
+        const _q = new Queue('test', { host });
+        const msgs = [];
+
+        _q.on('message', msg => msgs.push(msg));
+        _q.on('ready', () => {
+          _q.subscribe()
+          .then((count) => {
+            expect(count).to.eql(1);
+            return _q.unsubscribe();
+          })
+          .then((count) => {
+            //expect(count).to.eql(0);
+            q.publish('elem1');
+            q.publish('elem2');
+            q.publish('elem3');
+
+            setTimeout(() => {
+              expect(msgs.length).to.eql(0);
+              done();
+            }, 200);
+          })
+          .catch(done);
+        });
       });
     });
   });

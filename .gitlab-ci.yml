@@ -3,7 +3,7 @@ services:
   - redis
 
 variables:
-  - REDIS_HOST=redis
+  REDIS_HOST: redis
 
 build:
   stage: build

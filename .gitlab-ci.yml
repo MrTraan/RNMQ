@@ -1,0 +1,9 @@
+image: node:6
+services:
+  - redis
+
+job1:
+  stage: build
+  script:
+    - npm install
+    - npm run build

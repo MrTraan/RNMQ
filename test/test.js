@@ -1,8 +1,7 @@
 const chai = require('chai');
-const expect = chai.expect;
-
 const { Queue } = require('../build/index.js');
 
+const expect = chai.expect;
 const host = process.env.REDIS_HOST || '127.0.0.1';
 
 describe('Classe queue', () => {
@@ -110,6 +109,7 @@ describe('Classe queue', () => {
 
       _q.on('message', msg => msgs.push(msg));
       _q.on('ready', () => {
+        console.log('_q is ready');
         _q.subscribe();
         q.publish('elem1');
         q.publish('elem2');
@@ -120,6 +120,8 @@ describe('Classe queue', () => {
           done();
         }, 200);
       });
+
+      _q.on('error', done);
     });
   });
 });

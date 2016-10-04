@@ -104,13 +104,11 @@ describe('Classe queue', () => {
 
   describe('#subscribe', () => {
     it('Should subscribe to new message events', function(done) {
-      this.timeout(10000);
-      const _q = new Queue('test');
+      const _q = new Queue('test', { host });
       const msgs = [];
 
       _q.on('message', msg => msgs.push(msg));
       _q.on('ready', () => {
-        console.log('_q is ready');
         _q.subscribe();
         q.publish('elem1');
         q.publish('elem2');
@@ -121,9 +119,6 @@ describe('Classe queue', () => {
           done();
         }, 200);
       });
-
-      _q.on('error', done);
-      _q.on('reconnecting', done);
     });
   });
 });

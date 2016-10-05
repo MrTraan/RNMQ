@@ -4,7 +4,7 @@ const { Queue } = require('../build/index.js');
 const expect = chai.expect;
 const host = process.env.REDIS_HOST || '127.0.0.1';
 
-const SMALL_DELAY = 10 // Delay use to wait for pub/sub actions, in ms
+const SMALL_DELAY = 10 // Delay used to wait for pub/sub actions, in ms
 
 describe('Class queue', () => {
   let q;

@@ -4,6 +4,8 @@ const { Queue } = require('../build/index.js');
 const expect = chai.expect;
 const host = process.env.REDIS_HOST || '127.0.0.1';
 
+const SMALL_DELAY = 10 // Delay use to wait for pub/sub actions, in ms
+
 describe('Class queue', () => {
   let q;
 
@@ -121,7 +123,7 @@ describe('Class queue', () => {
             setTimeout(() => {
               expect(msgs.length).to.eql(3);
               done();
-            }, 200);
+            }, SMALL_DELAY);
           })
           .catch(done);
         });
@@ -149,7 +151,36 @@ describe('Class queue', () => {
             setTimeout(() => {
               expect(msgs.length).to.eql(0);
               done();
-            }, 200);
+            }, SMALL_DELAY);
+          })
+          .catch(done);
+        });
+      });
+    });
+
+    describe('#requeue', () => {
+      it('Should requeue a message', (done) => {
+        const _q = new Queue('test', { host });
+
+        _q.on('message', msg => _q.requeue(msg));
+
+        _q.on('ready', () => {
+          _q.subscribe()
+          .then((count) => {
+            expect(count).to.eql(1);
+            
+            q.publish('elem1');
+            q.publish('elem2');
+            q.publish('elem3');
+
+            setTimeout(() => {
+              _q.getAllErrors()
+              .then((msgs) => {
+                expect(msgs.length).to.eql(3);
+                done();
+              })
+              .catch(done);
+            }, SMALL_DELAY);
           })
           .catch(done);
         });
